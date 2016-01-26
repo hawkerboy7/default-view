@@ -1,3 +1,6 @@
 require('de-builder')({
-	type: 2
+	type: 2,
+	forever: {
+		enabled: false
+	}
 });
