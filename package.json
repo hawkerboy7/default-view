@@ -1,0 +1,19 @@
+{
+  "name": "default-view",
+  "version": "0.1.0",
+  "description": "",
+  "main": "build/index.js",
+  "author": "Dexter Esajas <dexter.esajas@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hawkerboy7/default-view.git"
+  },
+  "bugs": {
+    "url": "https://github.com/hawkerboy7/default-view/issues"
+  },
+  "homepage": "https://github.com/hawkerboy7/default-view#readme",
+  "devDependencies": {
+    "de-builder": "^0.6.0"
+  }
+}
