@@ -7,8 +7,7 @@ class Default extends Backbone.View
 	constructor: ->
 
 		# Create an object to store events
-		@_default =
-			events: []
+		@_default = events: []
 
 		# Run Backbone's constructor
 		super
