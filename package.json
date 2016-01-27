@@ -1,8 +1,8 @@
 {
   "name": "default-view",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "",
-  "main": "build/index.js",
+  "main": "build/app.js",
   "author": "Dexter Esajas <dexter.esajas@gmail.com>",
   "license": "MIT",
   "repository": {
