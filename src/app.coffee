@@ -1,4 +1,15 @@
 # --------------------------------------------------
+# NPM
+# --------------------------------------------------
+_        = require 'lodash'
+Backbone = require 'backbone'
+
+
+# Create a (e)Vent object if not defined yet
+window.Vent = _.extends {}, Backbone.Events if not window.Vent
+
+
+# --------------------------------------------------
 # Default backbone view
 # --------------------------------------------------
 class Default extends Backbone.View
@@ -33,16 +44,11 @@ class Default extends Backbone.View
 
 	off: (eventName, func) ->
 
-		if eventName
-
-			# If eventName is provided turn it off
-			return Vent.off eventName, func
+		# If eventName is provided turn it off
+		return Vent.off eventName, func if eventName
 
 		# Remove all event listeners of this view if no eventName is provided
-		for event in @_default.events
-
-			# Remove event listener
-			Vent.off event[0], event[1]
+		Vent.off event[0], event[1] for event in @_default.events
 
 
 	block : (e) ->
