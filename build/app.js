@@ -1,5 +1,5 @@
 (function() {
-  var Backbone, Default, _, i,
+  var Backbone, Default, _,
     bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
     hasProp = {}.hasOwnProperty;
@@ -14,8 +14,6 @@
     window.Vent = _["extends"]({}, Backbone.Events);
   }
 
-  i = 0;
-
   Default = (function(superClass) {
     extend(Default, superClass);
 
@@ -23,9 +21,7 @@
       this.show = bind(this.show, this);
       this.hide = bind(this.hide, this);
       this.quit = bind(this.quit, this);
-      i++;
       this._default = {
-        id: i,
         events: [],
         children: []
       };
@@ -43,14 +39,14 @@
     };
 
     Default.prototype.off = function(eventName, func) {
-      var event, j, len, ref, results;
+      var event, i, len, ref, results;
       if (eventName) {
         return Vent.off(eventName, func);
       }
       ref = this._default.events;
       results = [];
-      for (j = 0, len = ref.length; j < len; j++) {
-        event = ref[j];
+      for (i = 0, len = ref.length; i < len; i++) {
+        event = ref[i];
         results.push(Vent.off(event[0], event[1]));
       }
       return results;
@@ -72,10 +68,10 @@
     };
 
     Default.prototype.quit = function() {
-      var child, j, len, ref;
+      var child, i, len, ref;
       ref = this._default.children;
-      for (j = 0, len = ref.length; j < len; j++) {
-        child = ref[j];
+      for (i = 0, len = ref.length; i < len; i++) {
+        child = ref[i];
         child.quit();
       }
       this.off();

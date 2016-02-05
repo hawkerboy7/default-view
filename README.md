@@ -12,6 +12,8 @@
 ### off
 ### trigger
 ### block
+### append
+### prepend
 ### quit
 
 ### hide

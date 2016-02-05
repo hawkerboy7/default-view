@@ -8,9 +8,6 @@ Backbone = require 'backbone'
 # Create a (e)Vent object if not defined yet
 window.Vent = _.extends {}, Backbone.Events if not window.Vent
 
-# Unique id for each default view
-i = 0
-
 
 
 # --------------------------------------------------
@@ -18,15 +15,10 @@ i = 0
 # --------------------------------------------------
 class Default extends Backbone.View
 
-
 	constructor: ->
-
-		# Increment
-		i++
 
 		# Create an object to store events
 		@_default =
-			id       : i
 			events   : []
 			children : []
 
