@@ -1,12 +1,13 @@
 # --------------------------------------------------
 # NPM
 # --------------------------------------------------
+window.$ = require 'jquery'
 _        = require 'lodash'
 Backbone = require 'backbone'
 
-
 # Create a (e)Vent object if not defined yet
 window.Vent = _.extends {}, Backbone.Events if not window.Vent
+
 
 
 # --------------------------------------------------
@@ -14,11 +15,12 @@ window.Vent = _.extends {}, Backbone.Events if not window.Vent
 # --------------------------------------------------
 class Default extends Backbone.View
 
-
 	constructor: ->
 
 		# Create an object to store events
-		@_default = events: []
+		@_default =
+			events   : []
+			children : []
 
 		# Run Backbone's constructor
 		super
@@ -51,16 +53,40 @@ class Default extends Backbone.View
 		Vent.off event[0], event[1] for event in @_default.events
 
 
+	append: (view) ->
+
+		@_default.children.push view
+
+		@$el.append view.el
+
+
+	preppend: (view) ->
+
+		@_default.children.push view
+
+		@$el.prepend view.el
+
+
 	block : (e) ->
 		e.preventDefault()
 		e.stopPropagation()
 
 
+	quit: =>
+
+		# Remove all children
+		child.quit() for child in @_default.children
+
+		# Remove all event listeners
+		@off()
+
+		# Remove element
+		@remove()
+
+
 	hide: => @$el.removeClass 'show-me'
 
 	show: => @$el.addClass 'show-me'
-
-	quit: => @off(); @remove()
 
 	trigger: -> Vent.trigger.apply Vent, arguments
 
