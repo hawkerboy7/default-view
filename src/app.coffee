@@ -55,33 +55,47 @@ class Default extends Backbone.View
 
 	append: (view) ->
 
+		# Track the child view
 		@_default.children.push view
 
+		# Append the child view's element
 		@$el.append view.el
 
 
 	preppend: (view) ->
 
+		# Track the child view
 		@_default.children.push view
 
+		# Prepend the child view's element
 		@$el.prepend view.el
 
 
 	block : (e) ->
+
+		# Prevent the default event
 		e.preventDefault()
+
+		# Prevent the event from propagating (bubling up/notifying parent views)
 		e.stopPropagation()
 
 
 	quit: =>
 
 		# Remove all children
-		child.quit() for child in @_default.children
+		@empty()
 
 		# Remove all event listeners
 		@off()
 
 		# Remove element
 		@remove()
+
+
+	empty: =>
+
+		# Remove all children
+		child.quit() for child in @_default.children
 
 
 	hide: => @$el.removeClass 'show-me'
