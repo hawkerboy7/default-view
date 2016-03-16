@@ -57,7 +57,7 @@ Default = (function(superClass) {
     return this.$el.append(view.el);
   };
 
-  Default.prototype.preppend = function(view) {
+  Default.prototype.prepend = function(view) {
     this._default.children.push(view);
     return this.$el.prepend(view.el);
   };
