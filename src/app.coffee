@@ -62,7 +62,7 @@ class Default extends Backbone.View
 		@$el.append view.el
 
 
-	preppend: (view) ->
+	prepend: (view) ->
 
 		# Track the child view
 		@_default.children.push view
