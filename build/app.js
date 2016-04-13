@@ -16,9 +16,48 @@ Default = (function(superClass) {
       socket: [],
       children: []
     };
-    Default.__super__.constructor.apply(this, arguments);
     Default.prototype.socket = this.__socket();
+    Default.__super__.constructor.apply(this, arguments);
   }
+
+  Default.prototype.__socket = function() {
+    var socket;
+    return socket = {
+      on: (function(_this) {
+        return function(eventName, func) {
+          _this._default.socket.push([eventName, func]);
+          return App.Socket.on(eventName, func);
+        };
+      })(this),
+      once: (function(_this) {
+        return function(eventName, func) {
+          _this._default.socket.push([eventName, func]);
+          return App.Socket.once(eventName, func);
+        };
+      })(this),
+      off: (function(_this) {
+        return function(eventName, func) {
+          var event, i, len, ref, results;
+          console.log("Socket off", eventName, func);
+          if (eventName) {
+            return App.Socket.off(eventName, func);
+          }
+          ref = _this._default.socket;
+          results = [];
+          for (i = 0, len = ref.length; i < len; i++) {
+            event = ref[i];
+            results.push(App.Socket.off(event[0], event[1]));
+          }
+          return results;
+        };
+      })(this),
+      emit: (function(_this) {
+        return function() {
+          return App.Socket.emit.apply(App.Socket, arguments);
+        };
+      })(this)
+    };
+  };
 
   Default.prototype.on = function(eventName, func) {
     this._default.events.push([eventName, func]);
@@ -74,44 +113,6 @@ Default = (function(superClass) {
       results.push(child.quit());
     }
     return results;
-  };
-
-  Default.prototype.__socket = function() {
-    var socket;
-    return socket = {
-      on: (function(_this) {
-        return function(eventName, func) {
-          _this._default.socket.push([eventName, func]);
-          return App.Socket.on(eventName, func);
-        };
-      })(this),
-      once: (function(_this) {
-        return function(eventName, func) {
-          _this._default.socket.push([eventName, func]);
-          return App.Socket.once(eventName, func);
-        };
-      })(this),
-      off: (function(_this) {
-        return function(eventName, func) {
-          var event, i, len, ref, results;
-          if (eventName) {
-            return App.Socket.off(eventName, func);
-          }
-          ref = _this._default.socket;
-          results = [];
-          for (i = 0, len = ref.length; i < len; i++) {
-            event = ref[i];
-            results.push(App.Socket.off(event[0], event[1]));
-          }
-          return results;
-        };
-      })(this),
-      emit: (function(_this) {
-        return function() {
-          return App.Socket.emit.apply(App.Socket, arguments);
-        };
-      })(this)
-    };
   };
 
   Default.prototype.hide = function() {
