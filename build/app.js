@@ -1,17 +1,7 @@
-var Backbone, Default, _,
+var Default,
   bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
-
-window.$ = require('jquery');
-
-_ = require('lodash');
-
-Backbone = require('backbone');
-
-if (!window.Vent) {
-  window.Vent = _["extends"]({}, Backbone.Events);
-}
 
 Default = (function(superClass) {
   extend(Default, superClass);
@@ -30,24 +20,24 @@ Default = (function(superClass) {
 
   Default.prototype.on = function(eventName, func) {
     this._default.events.push([eventName, func]);
-    return Vent.on(eventName, func);
+    return App.Vent.on(eventName, func);
   };
 
   Default.prototype.once = function(eventName, func) {
     this._default.events.push([eventName, func]);
-    return Vent.once(eventName, func);
+    return App.Vent.once(eventName, func);
   };
 
   Default.prototype.off = function(eventName, func) {
     var event, i, len, ref, results;
     if (eventName) {
-      return Vent.off(eventName, func);
+      return App.Vent.off(eventName, func);
     }
     ref = this._default.events;
     results = [];
     for (i = 0, len = ref.length; i < len; i++) {
       event = ref[i];
-      results.push(Vent.off(event[0], event[1]));
+      results.push(App.Vent.off(event[0], event[1]));
     }
     return results;
   };
@@ -93,7 +83,7 @@ Default = (function(superClass) {
   };
 
   Default.prototype.trigger = function() {
-    return Vent.trigger.apply(Vent, arguments);
+    return App.Vent.trigger.apply(Vent, arguments);
   };
 
   Default.prototype.leftClick = function(e) {
