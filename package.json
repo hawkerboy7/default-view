@@ -1,7 +1,7 @@
 {
   "name": "default-view",
-  "version": "0.4.0",
-  "description": "Default-view is an extended Backbone.View. It contains functionalities often used in Backbone and de-base.",
+  "version": "0.5.0",
+  "description": "Default-view is an extended Backbone.View. It contains functionalities used in 'de-base'.",
   "main": "build/app.js",
   "author": "Dexter Esajas <dexter.esajas@gmail.com>",
   "license": "MIT",
