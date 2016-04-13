@@ -8,10 +8,14 @@ class Default extends Backbone.View
 		# Create an object to store events
 		@_default =
 			events   : []
+			socket   : []
 			children : []
 
 		# Run Backbone's constructor
 		super
+
+		# Faster reference to the socket connection
+		Default.prototype.socket = @__socket()
 
 
 	on: (eventName, func) ->
@@ -86,11 +90,44 @@ class Default extends Backbone.View
 		child.quit() for child in @_default.children
 
 
+	__socket: ->
+
+		socket =
+			on: (eventName, func) =>
+
+				# Store eventName
+				@_default.socket.push [ eventName, func ]
+
+				# Set event listener
+				App.Socket.on eventName, func
+
+			once: (eventName, func) =>
+
+				# Store eventName
+				@_default.socket.push [ eventName, func ]
+
+				# Set event listener
+				App.Socket.once eventName, func
+
+			off: (eventName, func) =>
+
+				# If eventName is provided turn it off
+				return App.Socket.off eventName, func if eventName
+
+				# Remove all event listeners of this view if no eventName is provided
+				App.Socket.off event[0], event[1] for event in @_default.socket
+
+			emit: =>
+
+				# Send along the emit event
+				App.Socket.emit.apply App.Socket, arguments
+
+
 	hide: => @$el.removeClass 'show-me'
 
 	show: => @$el.addClass 'show-me'
 
-	trigger: -> App.Vent.trigger.apply Vent, arguments
+	trigger: -> App.Vent.trigger.apply App.Vent, arguments
 
 	leftClick : (e) -> e?.button is 0
 
