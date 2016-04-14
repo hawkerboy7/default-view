@@ -100,6 +100,7 @@ Default = (function(superClass) {
   Default.prototype.quit = function() {
     this.empty();
     this.off();
+    this.socket.off();
     return this.remove();
   };
 
