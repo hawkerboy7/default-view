@@ -39,8 +39,6 @@ class Default extends Backbone.View
 
 			off: (eventName, func) =>
 
-				console.log "Socket off", eventName, func
-
 				# If eventName is provided turn it off
 				return App.Socket.off eventName, func if eventName
 
