@@ -38,7 +38,6 @@ Default = (function(superClass) {
       off: (function(_this) {
         return function(eventName, func) {
           var event, i, len, ref, results;
-          console.log("Socket off", eventName, func);
           if (eventName) {
             return App.Socket.off(eventName, func);
           }
