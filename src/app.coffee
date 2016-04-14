@@ -113,6 +113,9 @@ class Default extends Backbone.View
 		# Remove all event listeners
 		@off()
 
+		# Remove all socket listeners
+		@socket.off()
+
 		# Remove element
 		@remove()
 
