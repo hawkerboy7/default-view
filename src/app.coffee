@@ -17,7 +17,9 @@ class Default extends Backbone.View
 		# Run Backbone's constructor
 		super
 
-
+	# --------------------------------------------------
+	# Socket Eventhandling
+	# --------------------------------------------------
 	__socket: ->
 
 		socket =
@@ -50,7 +52,9 @@ class Default extends Backbone.View
 				# Send along the emit event
 				App.Socket.emit.apply App.Socket, arguments
 
-
+	# --------------------------------------------------
+	# MiniEventEmitter Eventhandling
+	# --------------------------------------------------
 	on: (eventName, func) ->
 
 		# Store eventName
@@ -58,15 +62,6 @@ class Default extends Backbone.View
 
 		# Set event listener
 		App.Vent.on eventName, func
-
-
-	once: (eventName, func) ->
-
-		# Store eventName
-		@_default.events.push [ eventName, func ]
-
-		# Set event listener
-		App.Vent.once eventName, func
 
 
 	off: (eventName, func) ->
@@ -78,6 +73,15 @@ class Default extends Backbone.View
 		App.Vent.off event[0], event[1] for event in @_default.events
 
 
+	emit: ->
+
+		# Emit event
+		App.Vent.emit.apply App.Vent, arguments
+
+
+	# --------------------------------------------------
+	# DefaultView Backbone View logics
+	# --------------------------------------------------
 	append: (view) ->
 
 		# Track the child view
@@ -96,13 +100,10 @@ class Default extends Backbone.View
 		@$el.prepend view.el
 
 
-	block : (e) ->
+	empty: =>
 
-		# Prevent the default event
-		e.preventDefault()
-
-		# Prevent the event from propagating (bubling up/notifying parent views)
-		e.stopPropagation()
+		# Remove all children
+		child.quit() for child in @_default.children
 
 
 	quit: =>
@@ -120,23 +121,27 @@ class Default extends Backbone.View
 		@remove()
 
 
-	empty: =>
+	# --------------------------------------------------
+	# Shortcuts
+	# --------------------------------------------------
+	block : (e) ->
 
-		# Remove all children
-		child.quit() for child in @_default.children
+		# Prevent the default event
+		e.preventDefault()
+
+		# Prevent the event from propagating (bubling up/notifying parent views)
+		e.stopPropagation()
 
 
 	hide: => @$el.removeClass 'show-me'
 
 	show: => @$el.addClass 'show-me'
 
-	trigger: -> App.Vent.trigger.apply App.Vent, arguments
-
 	leftClick : (e) -> e?.button is 0
 
-	objectLength : (obj) -> Object.keys(obj).length
+	objLength : (obj) -> Object.keys(obj).length
 
-	enterPressed : (e) -> (e.which || e.key) is 13 if e
+	enterPressed : (e) -> return if e and (e.which || e.key) is 13 then true else false
 
 
 

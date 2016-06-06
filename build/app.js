@@ -9,8 +9,8 @@ Default = (function(superClass) {
   function Default() {
     this.show = bind(this.show, this);
     this.hide = bind(this.hide, this);
-    this.empty = bind(this.empty, this);
     this.quit = bind(this.quit, this);
+    this.empty = bind(this.empty, this);
     this._default = {
       events: [],
       socket: [],
@@ -63,11 +63,6 @@ Default = (function(superClass) {
     return App.Vent.on(eventName, func);
   };
 
-  Default.prototype.once = function(eventName, func) {
-    this._default.events.push([eventName, func]);
-    return App.Vent.once(eventName, func);
-  };
-
   Default.prototype.off = function(eventName, func) {
     var event, i, len, ref, results;
     if (eventName) {
@@ -82,6 +77,10 @@ Default = (function(superClass) {
     return results;
   };
 
+  Default.prototype.emit = function() {
+    return App.Vent.emit.apply(App.Vent, arguments);
+  };
+
   Default.prototype.append = function(view) {
     this._default.children.push(view);
     return this.$el.append(view.el);
@@ -90,18 +89,6 @@ Default = (function(superClass) {
   Default.prototype.prepend = function(view) {
     this._default.children.push(view);
     return this.$el.prepend(view.el);
-  };
-
-  Default.prototype.block = function(e) {
-    e.preventDefault();
-    return e.stopPropagation();
-  };
-
-  Default.prototype.quit = function() {
-    this.empty();
-    this.off();
-    this.socket.off();
-    return this.remove();
   };
 
   Default.prototype.empty = function() {
@@ -115,6 +102,18 @@ Default = (function(superClass) {
     return results;
   };
 
+  Default.prototype.quit = function() {
+    this.empty();
+    this.off();
+    this.socket.off();
+    return this.remove();
+  };
+
+  Default.prototype.block = function(e) {
+    e.preventDefault();
+    return e.stopPropagation();
+  };
+
   Default.prototype.hide = function() {
     return this.$el.removeClass('show-me');
   };
@@ -123,21 +122,19 @@ Default = (function(superClass) {
     return this.$el.addClass('show-me');
   };
 
-  Default.prototype.trigger = function() {
-    return App.Vent.trigger.apply(App.Vent, arguments);
-  };
-
   Default.prototype.leftClick = function(e) {
     return (e != null ? e.button : void 0) === 0;
   };
 
-  Default.prototype.objectLength = function(obj) {
+  Default.prototype.objLength = function(obj) {
     return Object.keys(obj).length;
   };
 
   Default.prototype.enterPressed = function(e) {
-    if (e) {
-      return (e.which || e.key) === 13;
+    if (e && (e.which || e.key) === 13) {
+      return true;
+    } else {
+      return false;
     }
   };
 
