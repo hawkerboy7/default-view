@@ -1,37 +1,36 @@
-var Default,
+var DefaultView,
   bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   hasProp = {}.hasOwnProperty;
 
-Default = (function(superClass) {
-  extend(Default, superClass);
+DefaultView = (function(superClass) {
+  extend(DefaultView, superClass);
 
-  function Default() {
+  function DefaultView() {
     this.show = bind(this.show, this);
     this.hide = bind(this.hide, this);
-    this.empty = bind(this.empty, this);
     this.quit = bind(this.quit, this);
-    this._default = {
-      events: [],
+    this.empty = bind(this.empty, this);
+    this._DefaultView = {
       socket: [],
       children: []
     };
-    Default.prototype.socket = this.__socket();
-    Default.__super__.constructor.apply(this, arguments);
+    DefaultView.prototype.socket = this.__socket();
+    DefaultView.__super__.constructor.apply(this, arguments);
   }
 
-  Default.prototype.__socket = function() {
+  DefaultView.prototype.__socket = function() {
     var socket;
     return socket = {
       on: (function(_this) {
         return function(eventName, func) {
-          _this._default.socket.push([eventName, func]);
+          _this._DefaultView.socket.push([eventName, func]);
           return App.Socket.on(eventName, func);
         };
       })(this),
       once: (function(_this) {
         return function(eventName, func) {
-          _this._default.socket.push([eventName, func]);
+          _this._DefaultView.socket.push([eventName, func]);
           return App.Socket.once(eventName, func);
         };
       })(this),
@@ -41,7 +40,7 @@ Default = (function(superClass) {
           if (eventName) {
             return App.Socket.off(eventName, func);
           }
-          ref = _this._default.socket;
+          ref = _this._DefaultView.socket;
           results = [];
           for (i = 0, len = ref.length; i < len; i++) {
             event = ref[i];
@@ -58,55 +57,31 @@ Default = (function(superClass) {
     };
   };
 
-  Default.prototype.on = function(eventName, func) {
-    this._default.events.push([eventName, func]);
-    return App.Vent.on(eventName, func);
+  DefaultView.prototype.on = function(eventName, func) {
+    return App.Vent.on(eventName, this.cid, func);
   };
 
-  Default.prototype.once = function(eventName, func) {
-    this._default.events.push([eventName, func]);
-    return App.Vent.once(eventName, func);
+  DefaultView.prototype.off = function(eventName, func) {
+    return App.Vent.off(eventName, this.cid, func);
   };
 
-  Default.prototype.off = function(eventName, func) {
-    var event, i, len, ref, results;
-    if (eventName) {
-      return App.Vent.off(eventName, func);
-    }
-    ref = this._default.events;
-    results = [];
-    for (i = 0, len = ref.length; i < len; i++) {
-      event = ref[i];
-      results.push(App.Vent.off(event[0], event[1]));
-    }
-    return results;
+  DefaultView.prototype.emit = function() {
+    return App.Vent.emit.apply(App.Vent, arguments);
   };
 
-  Default.prototype.append = function(view) {
-    this._default.children.push(view);
+  DefaultView.prototype.append = function(view) {
+    this._DefaultView.children.push(view);
     return this.$el.append(view.el);
   };
 
-  Default.prototype.prepend = function(view) {
-    this._default.children.push(view);
+  DefaultView.prototype.prepend = function(view) {
+    this._DefaultView.children.push(view);
     return this.$el.prepend(view.el);
   };
 
-  Default.prototype.block = function(e) {
-    e.preventDefault();
-    return e.stopPropagation();
-  };
-
-  Default.prototype.quit = function() {
-    this.empty();
-    this.off();
-    this.socket.off();
-    return this.remove();
-  };
-
-  Default.prototype.empty = function() {
+  DefaultView.prototype.empty = function() {
     var child, i, len, ref, results;
-    ref = this._default.children;
+    ref = this._DefaultView.children;
     results = [];
     for (i = 0, len = ref.length; i < len; i++) {
       child = ref[i];
@@ -115,34 +90,44 @@ Default = (function(superClass) {
     return results;
   };
 
-  Default.prototype.hide = function() {
+  DefaultView.prototype.quit = function() {
+    this.empty();
+    this.off();
+    this.socket.off();
+    return this.remove();
+  };
+
+  DefaultView.prototype.block = function(e) {
+    e.preventDefault();
+    return e.stopPropagation();
+  };
+
+  DefaultView.prototype.hide = function() {
     return this.$el.removeClass('show-me');
   };
 
-  Default.prototype.show = function() {
+  DefaultView.prototype.show = function() {
     return this.$el.addClass('show-me');
   };
 
-  Default.prototype.trigger = function() {
-    return App.Vent.trigger.apply(App.Vent, arguments);
-  };
-
-  Default.prototype.leftClick = function(e) {
+  DefaultView.prototype.leftClick = function(e) {
     return (e != null ? e.button : void 0) === 0;
   };
 
-  Default.prototype.objectLength = function(obj) {
+  DefaultView.prototype.objLength = function(obj) {
     return Object.keys(obj).length;
   };
 
-  Default.prototype.enterPressed = function(e) {
-    if (e) {
-      return (e.which || e.key) === 13;
+  DefaultView.prototype.enterPressed = function(e) {
+    if (e && (e.which || e.key) === 13) {
+      return true;
+    } else {
+      return false;
     }
   };
 
-  return Default;
+  return DefaultView;
 
 })(Backbone.View);
 
-module.exports = Default;
+module.exports = DefaultView;
