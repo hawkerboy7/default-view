@@ -1,21 +1,21 @@
 # --------------------------------------------------
-# Default backbone view
+# DefaultView | A backbone view with some usefull functions/bindings
 # --------------------------------------------------
-class Default extends Backbone.View
+class DefaultView extends Backbone.View
 
 	constructor: ->
 
 		# Create an object to store events
-		@_default =
-			events   : []
+		@_DefaultView =
 			socket   : []
 			children : []
 
 		# Create faster reference to the socket connection
-		Default.prototype.socket = @__socket()
+		DefaultView.prototype.socket = @__socket()
 
 		# Run Backbone's constructor
 		super
+
 
 	# --------------------------------------------------
 	# Socket Eventhandling
@@ -26,7 +26,7 @@ class Default extends Backbone.View
 			on: (eventName, func) =>
 
 				# Store eventName
-				@_default.socket.push [ eventName, func ]
+				@_DefaultView.socket.push [ eventName, func ]
 
 				# Set event listener
 				App.Socket.on eventName, func
@@ -34,7 +34,7 @@ class Default extends Backbone.View
 			once: (eventName, func) =>
 
 				# Store eventName
-				@_default.socket.push [ eventName, func ]
+				@_DefaultView.socket.push [ eventName, func ]
 
 				# Set event listener
 				App.Socket.once eventName, func
@@ -45,37 +45,32 @@ class Default extends Backbone.View
 				return App.Socket.off eventName, func if eventName
 
 				# Remove all event listeners of this view if no eventName is provided
-				App.Socket.off event[0], event[1] for event in @_default.socket
+				App.Socket.off event[0], event[1] for event in @_DefaultView.socket
 
 			emit: =>
 
 				# Send along the emit event
 				App.Socket.emit.apply App.Socket, arguments
 
+
 	# --------------------------------------------------
 	# MiniEventEmitter Eventhandling
 	# --------------------------------------------------
 	on: (eventName, func) ->
 
-		# Store eventName
-		@_default.events.push [ eventName, func ]
-
-		# Set event listener
-		App.Vent.on eventName, func
+		# Pass along on event + provide the view's id to create a unique group for each view
+		App.Vent.on eventName, @cid, func
 
 
 	off: (eventName, func) ->
 
-		# If eventName is provided turn it off
-		return App.Vent.off eventName, func if eventName
-
-		# Remove all event listeners of this view if no eventName is provided
-		App.Vent.off event[0], event[1] for event in @_default.events
+		# Pass along off event + provide the view's id so only event's bound to this unique view are removed
+		App.Vent.off eventName, @cid, func
 
 
 	emit: ->
 
-		# Emit event
+		# Pass along event which will be send to all groups within the event
 		App.Vent.emit.apply App.Vent, arguments
 
 
@@ -85,7 +80,7 @@ class Default extends Backbone.View
 	append: (view) ->
 
 		# Track the child view
-		@_default.children.push view
+		@_DefaultView.children.push view
 
 		# Append the child view's element
 		@$el.append view.el
@@ -94,7 +89,7 @@ class Default extends Backbone.View
 	prepend: (view) ->
 
 		# Track the child view
-		@_default.children.push view
+		@_DefaultView.children.push view
 
 		# Prepend the child view's element
 		@$el.prepend view.el
@@ -103,7 +98,7 @@ class Default extends Backbone.View
 	empty: =>
 
 		# Remove all children
-		child.quit() for child in @_default.children
+		child.quit() for child in @_DefaultView.children
 
 
 	quit: =>
@@ -117,7 +112,7 @@ class Default extends Backbone.View
 		# Remove all socket listeners
 		@socket.off()
 
-		# Remove element
+		# Remove this DOM element
 		@remove()
 
 
@@ -145,4 +140,4 @@ class Default extends Backbone.View
 
 
 
-module.exports = Default
+module.exports = DefaultView
