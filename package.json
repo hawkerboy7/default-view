@@ -5,11 +5,6 @@
   "main": "build/app.js",
   "author": "Dexter Esajas <dexter.esajas@gmail.com>",
   "license": "MIT",
-  "dependencies": {
-    "backbone": "^1.2.3",
-    "jquery": "^2.2.0",
-    "lodash": "^4.1.0"
-  },
   "devDependencies": {
     "de-builder": "^0.7.1"
   },
