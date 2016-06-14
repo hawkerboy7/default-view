@@ -12,6 +12,7 @@ class DefaultView extends Backbone.View
 
 		# Create faster reference to the socket connection
 		DefaultView.prototype.socket = @__socket()
+		DefaultView.prototype.worker = @__worker()
 
 		# Run Backbone's constructor
 		super
@@ -54,18 +55,42 @@ class DefaultView extends Backbone.View
 
 
 	# --------------------------------------------------
+	# WebWorker Eventhandling
+	# --------------------------------------------------
+	__worker: ->
+
+		worker =
+			on: (event, func) ->
+
+				# Pass along on event + provide the view's id to create a unique group for each view
+				App.Worker.on event, @cid, func
+
+
+			off: (event, func) ->
+
+				# Pass along off event + provide the view's id so only event's bound to this unique view are removed
+				App.Worker.off event, @cid, func
+
+
+			emit: ->
+
+				# Pass along event which will be send to all groups within the event
+				App.Worker.emit.apply App.Worker, arguments
+
+
+	# --------------------------------------------------
 	# MiniEventEmitter Eventhandling
 	# --------------------------------------------------
-	on: (eventName, func) ->
+	on: (event, func) ->
 
 		# Pass along on event + provide the view's id to create a unique group for each view
-		App.Vent.on eventName, @cid, func
+		App.Vent.on event, @cid, func
 
 
-	off: (eventName, func) ->
+	off: (event, func) ->
 
 		# Pass along off event + provide the view's id so only event's bound to this unique view are removed
-		App.Vent.off eventName, @cid, func
+		App.Vent.off event, @cid, func
 
 
 	emit: ->
