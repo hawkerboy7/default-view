@@ -16,6 +16,7 @@ DefaultView = (function(superClass) {
       children: []
     };
     DefaultView.prototype.socket = this.__socket();
+    DefaultView.prototype.worker = this.__worker();
     DefaultView.__super__.constructor.apply(this, arguments);
   }
 
@@ -57,12 +58,27 @@ DefaultView = (function(superClass) {
     };
   };
 
-  DefaultView.prototype.on = function(eventName, func) {
-    return App.Vent.on(eventName, this.cid, func);
+  DefaultView.prototype.__worker = function() {
+    var worker;
+    return worker = {
+      on: function(event, func) {
+        return App.Worker.on(event, this.cid, func);
+      },
+      off: function(event, func) {
+        return App.Worker.off(event, this.cid, func);
+      },
+      emit: function() {
+        return App.Worker.emit.apply(App.Worker, arguments);
+      }
+    };
   };
 
-  DefaultView.prototype.off = function(eventName, func) {
-    return App.Vent.off(eventName, this.cid, func);
+  DefaultView.prototype.on = function(event, func) {
+    return App.Vent.on(event, this.cid, func);
+  };
+
+  DefaultView.prototype.off = function(event, func) {
+    return App.Vent.off(event, this.cid, func);
   };
 
   DefaultView.prototype.emit = function() {
