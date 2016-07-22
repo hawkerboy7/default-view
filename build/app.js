@@ -12,66 +12,50 @@ DefaultView = (function(superClass) {
     this.quit = bind(this.quit, this);
     this.empty = bind(this.empty, this);
     this._DefaultView = {
+      parent: null,
       socket: [],
       children: []
     };
-    DefaultView.prototype.socket = this.__socket();
-    DefaultView.prototype.worker = this.__worker();
+    this.socket = {};
+    this.socket.on = ((function(_this) {
+      return function(event, func) {
+        _this._DefaultView.socket.push([event, func]);
+        return App.Socket.on(event, func);
+      };
+    })(this)).bind(this);
+    this.socket.off = ((function(_this) {
+      return function(event, func) {
+        var events, i, len, ref;
+        if (event) {
+          return App.Socket.off(event, func);
+        }
+        ref = _this._DefaultView.socket;
+        for (i = 0, len = ref.length; i < len; i++) {
+          events = ref[i];
+          App.Socket.off(events[0], events[1]);
+        }
+        return _this._DefaultView.socket = [];
+      };
+    })(this)).bind(this);
+    this.socket.emit = (function() {
+      return App.Socket.emit.apply(App.Socket, arguments);
+    }).bind(this);
+    this.socket.once = (function(event, func) {
+      this._DefaultView.socket.push([event, func]);
+      return App.Socket.once(event, func);
+    }).bind(this);
+    this.worker = {};
+    this.worker.on = (function(event, func) {
+      return App.Worker.on(event, this.cid, func);
+    }).bind(this);
+    this.worker.off = (function(event, func) {
+      return App.Worker.off(event, this.cid, func);
+    }).bind(this);
+    this.worker.emit = (function() {
+      return App.Worker.emit.apply(App.Worker, arguments);
+    }).bind(this);
     DefaultView.__super__.constructor.apply(this, arguments);
   }
-
-  DefaultView.prototype.__socket = function() {
-    var socket;
-    return socket = {
-      on: (function(_this) {
-        return function(eventName, func) {
-          _this._DefaultView.socket.push([eventName, func]);
-          return App.Socket.on(eventName, func);
-        };
-      })(this),
-      once: (function(_this) {
-        return function(eventName, func) {
-          _this._DefaultView.socket.push([eventName, func]);
-          return App.Socket.once(eventName, func);
-        };
-      })(this),
-      off: (function(_this) {
-        return function(eventName, func) {
-          var event, i, len, ref, results;
-          if (eventName) {
-            return App.Socket.off(eventName, func);
-          }
-          ref = _this._DefaultView.socket;
-          results = [];
-          for (i = 0, len = ref.length; i < len; i++) {
-            event = ref[i];
-            results.push(App.Socket.off(event[0], event[1]));
-          }
-          return results;
-        };
-      })(this),
-      emit: (function(_this) {
-        return function() {
-          return App.Socket.emit.apply(App.Socket, arguments);
-        };
-      })(this)
-    };
-  };
-
-  DefaultView.prototype.__worker = function() {
-    var worker;
-    return worker = {
-      on: function(event, func) {
-        return App.Worker.on(event, this.cid, func);
-      },
-      off: function(event, func) {
-        return App.Worker.off(event, this.cid, func);
-      },
-      emit: function() {
-        return App.Worker.emit.apply(App.Worker, arguments);
-      }
-    };
-  };
 
   DefaultView.prototype.on = function(event, func) {
     return App.Vent.on(event, this.cid, func);
@@ -86,20 +70,22 @@ DefaultView = (function(superClass) {
   };
 
   DefaultView.prototype.append = function(view) {
+    view._DefaultView.parent = this;
     this._DefaultView.children.push(view);
     return this.$el.append(view.el);
   };
 
   DefaultView.prototype.prepend = function(view) {
+    view._DefaultView.parent = this;
     this._DefaultView.children.push(view);
     return this.$el.prepend(view.el);
   };
 
   DefaultView.prototype.empty = function() {
-    var child, i, len, ref, results;
+    var child, i, ref, results;
     ref = this._DefaultView.children;
     results = [];
-    for (i = 0, len = ref.length; i < len; i++) {
+    for (i = ref.length - 1; i >= 0; i += -1) {
       child = ref[i];
       results.push(child.quit());
     }
@@ -107,9 +93,13 @@ DefaultView = (function(superClass) {
   };
 
   DefaultView.prototype.quit = function() {
+    var children, index;
     this.empty();
     this.off();
     this.socket.off();
+    this.worker.off();
+    index = (children = this._DefaultView.parent._DefaultView.children).indexOf(this);
+    children.splice(index, 1);
     return this.remove();
   };
 
@@ -119,11 +109,11 @@ DefaultView = (function(superClass) {
   };
 
   DefaultView.prototype.hide = function() {
-    return this.$el.removeClass('show-me');
+    return this.$el.removeClass("show-me");
   };
 
   DefaultView.prototype.show = function() {
-    return this.$el.addClass('show-me');
+    return this.$el.addClass("show-me");
   };
 
   DefaultView.prototype.leftClick = function(e) {
