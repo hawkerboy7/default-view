@@ -10,61 +10,91 @@ class DefaultView extends Backbone.View
 			parent   : null
 			socket   : []
 			children : []
+			removeFromParent: ((view) =>
+
+				return console.log "View to remove is not provided" if not view
+
+				# Check if this view is foudn in the parent
+				return console.log "View #{view} was not found in it's parent" if -1 is index = (children = @_DefaultView.parent._DefaultView.children).indexOf view
+
+				# Remove the provided child view reference from this (parent) view
+				children.splice index,1
+
+			).bind this
+
+		# --------------------------------------------------
+		# Default Eventhandling
+		# --------------------------------------------------
+		if not App.Vent
+
+			# Notification
+			msg = "DefaultView requires a variable App.Vent to be an event emitter (preferably MiniEventEmitter)"
+
+			# As warning if possible
+			return console.warn msg if console.warn
+
+			# As normal message
+			console.log msg
+
 
 		# --------------------------------------------------
 		# Socket Eventhandling
 		# --------------------------------------------------
-		@socket = {}
+		if App.Socket
 
-		@socket.on = ((event, func) =>
+			@socket = {}
 
-			# Store event
-			@_DefaultView.socket.push [event, func]
+			@socket.on = ((event, func) =>
 
-			# Set event listener
-			App.Socket.on event, func
+				# Store event
+				@_DefaultView.socket.push [event, func]
 
-		).bind this
+				# Set event listener
+				App.Socket.on event, func
 
-		@socket.off = ((event, func) =>
+			).bind this
 
-			# If event is provided turn it off
-			return App.Socket.off event, func if event
+			@socket.off = ((event, func) =>
 
-			# Remove all event listeners of this view if no event is provided
-			App.Socket.off events[0], events[1] for events in @_DefaultView.socket
+				# If event is provided turn it off
+				return App.Socket.off event, func if event
 
-			# Empty the array
-			@_DefaultView.socket = []
+				# Remove all event listeners of this view if no event is provided
+				App.Socket.off events[0], events[1] for events in @_DefaultView.socket
 
-		).bind this
+				# Empty the array
+				@_DefaultView.socket = []
 
-		# Send along the emit event
-		@socket.emit = (-> App.Socket.emit.apply App.Socket, arguments).bind this
+			).bind this
 
-		@socket.once = ((event, func) ->
+			# Send along the emit event
+			@socket.emit = (-> App.Socket.emit.apply App.Socket, arguments).bind this
 
-			# Store event
-			@_DefaultView.socket.push [event, func]
+			@socket.once = ((event, func) ->
 
-			# Set event listener
-			App.Socket.once event, func
+				# Store event
+				@_DefaultView.socket.push [event, func]
 
-		).bind this
+				# Set event listener
+				App.Socket.once event, func
+
+			).bind this
 
 		# --------------------------------------------------
 		# WebWorker Eventhandling
 		# --------------------------------------------------
-		@worker = {}
+		if App.Worker
 
-		# Pass along on event + provide the view's id to create a unique group for each view
-		@worker.on = ((event, func) -> App.Worker.on event, @cid, func).bind this
+			@worker = {}
 
-		# Pass along off event + provide the view's id so only event's bound to this unique view are removed
-		@worker.off = ((event, func) -> App.Worker.off event, @cid, func).bind this
+			# Pass along on event + provide the view's id to create a unique group for each view
+			@worker.on = ((event, func) -> App.Worker.on event, @cid, func).bind this
 
-		# Pass along event which will be send to all groups within the event
-		@worker.emit = (-> App.Worker.emit.apply App.Worker, arguments).bind this
+			# Pass along off event + provide the view's id so only event's bound to this unique view are removed
+			@worker.off = ((event, func) -> App.Worker.off event, @cid, func).bind this
+
+			# Pass along event which will be send to all groups within the event
+			@worker.emit = (-> App.Worker.emit.apply App.Worker, arguments).bind this
 
 		# Run Backbone's constructor
 		super
@@ -96,6 +126,9 @@ class DefaultView extends Backbone.View
 	# --------------------------------------------------
 	append: (view) ->
 
+		# Remove from previous parent reference list
+		view._DefaultView.removeFromParent view if view._DefaultView.parent
+
 		# Set the views parent to be me
 		view._DefaultView.parent = this
 
@@ -107,6 +140,9 @@ class DefaultView extends Backbone.View
 
 
 	prepend: (view) ->
+
+		# Remove from previous parent reference list
+		view._DefaultView.removeFromParent view if view._DefaultView.parent
 
 		# Set the views parent to be me
 		view._DefaultView.parent = this
@@ -133,10 +169,10 @@ class DefaultView extends Backbone.View
 		@off()
 
 		# Remove all socket listeners
-		@socket.off()
+		@socket?.off()
 
 		# Remove all worker listeners
-		@worker.off()
+		@worker?.off()
 
 		# Get this view's index within the view's parent
 		index = (children = @_DefaultView.parent._DefaultView.children).indexOf this
@@ -168,7 +204,7 @@ class DefaultView extends Backbone.View
 
 	objLength : (obj) -> Object.keys(obj).length
 
-	enterPressed : (e) -> return if e and (e.which || e.key) is 13 then true else false
+	enterPressed : (e) -> (e?.which || e?.key) is 13
 
 
 

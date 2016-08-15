@@ -11,49 +11,73 @@ DefaultView = (function(superClass) {
     this.hide = bind(this.hide, this);
     this.quit = bind(this.quit, this);
     this.empty = bind(this.empty, this);
+    var msg;
     this._DefaultView = {
       parent: null,
       socket: [],
-      children: []
+      children: [],
+      removeFromParent: ((function(_this) {
+        return function(view) {
+          var children, index;
+          if (!view) {
+            return console.log("View to remove is not provided");
+          }
+          if (-1 === (index = (children = _this._DefaultView.parent._DefaultView.children).indexOf(view))) {
+            return console.log("View " + view + " was not found in it's parent");
+          }
+          return children.splice(index, 1);
+        };
+      })(this)).bind(this)
     };
-    this.socket = {};
-    this.socket.on = ((function(_this) {
-      return function(event, func) {
-        _this._DefaultView.socket.push([event, func]);
-        return App.Socket.on(event, func);
-      };
-    })(this)).bind(this);
-    this.socket.off = ((function(_this) {
-      return function(event, func) {
-        var events, i, len, ref;
-        if (event) {
-          return App.Socket.off(event, func);
-        }
-        ref = _this._DefaultView.socket;
-        for (i = 0, len = ref.length; i < len; i++) {
-          events = ref[i];
-          App.Socket.off(events[0], events[1]);
-        }
-        return _this._DefaultView.socket = [];
-      };
-    })(this)).bind(this);
-    this.socket.emit = (function() {
-      return App.Socket.emit.apply(App.Socket, arguments);
-    }).bind(this);
-    this.socket.once = (function(event, func) {
-      this._DefaultView.socket.push([event, func]);
-      return App.Socket.once(event, func);
-    }).bind(this);
-    this.worker = {};
-    this.worker.on = (function(event, func) {
-      return App.Worker.on(event, this.cid, func);
-    }).bind(this);
-    this.worker.off = (function(event, func) {
-      return App.Worker.off(event, this.cid, func);
-    }).bind(this);
-    this.worker.emit = (function() {
-      return App.Worker.emit.apply(App.Worker, arguments);
-    }).bind(this);
+    if (!App.Vent) {
+      msg = "DefaultView requires a variable App.Vent to be an event emitter (preferably MiniEventEmitter)";
+      if (console.warn) {
+        return console.warn(msg);
+      }
+      console.log(msg);
+    }
+    if (App.Socket) {
+      this.socket = {};
+      this.socket.on = ((function(_this) {
+        return function(event, func) {
+          _this._DefaultView.socket.push([event, func]);
+          return App.Socket.on(event, func);
+        };
+      })(this)).bind(this);
+      this.socket.off = ((function(_this) {
+        return function(event, func) {
+          var events, i, len, ref;
+          if (event) {
+            return App.Socket.off(event, func);
+          }
+          ref = _this._DefaultView.socket;
+          for (i = 0, len = ref.length; i < len; i++) {
+            events = ref[i];
+            App.Socket.off(events[0], events[1]);
+          }
+          return _this._DefaultView.socket = [];
+        };
+      })(this)).bind(this);
+      this.socket.emit = (function() {
+        return App.Socket.emit.apply(App.Socket, arguments);
+      }).bind(this);
+      this.socket.once = (function(event, func) {
+        this._DefaultView.socket.push([event, func]);
+        return App.Socket.once(event, func);
+      }).bind(this);
+    }
+    if (App.Worker) {
+      this.worker = {};
+      this.worker.on = (function(event, func) {
+        return App.Worker.on(event, this.cid, func);
+      }).bind(this);
+      this.worker.off = (function(event, func) {
+        return App.Worker.off(event, this.cid, func);
+      }).bind(this);
+      this.worker.emit = (function() {
+        return App.Worker.emit.apply(App.Worker, arguments);
+      }).bind(this);
+    }
     DefaultView.__super__.constructor.apply(this, arguments);
   }
 
@@ -70,12 +94,18 @@ DefaultView = (function(superClass) {
   };
 
   DefaultView.prototype.append = function(view) {
+    if (view._DefaultView.parent) {
+      view._DefaultView.removeFromParent(view);
+    }
     view._DefaultView.parent = this;
     this._DefaultView.children.push(view);
     return this.$el.append(view.el);
   };
 
   DefaultView.prototype.prepend = function(view) {
+    if (view._DefaultView.parent) {
+      view._DefaultView.removeFromParent(view);
+    }
     view._DefaultView.parent = this;
     this._DefaultView.children.push(view);
     return this.$el.prepend(view.el);
@@ -93,11 +123,15 @@ DefaultView = (function(superClass) {
   };
 
   DefaultView.prototype.quit = function() {
-    var children, index;
+    var children, index, ref, ref1;
     this.empty();
     this.off();
-    this.socket.off();
-    this.worker.off();
+    if ((ref = this.socket) != null) {
+      ref.off();
+    }
+    if ((ref1 = this.worker) != null) {
+      ref1.off();
+    }
     index = (children = this._DefaultView.parent._DefaultView.children).indexOf(this);
     children.splice(index, 1);
     return this.remove();
@@ -125,11 +159,7 @@ DefaultView = (function(superClass) {
   };
 
   DefaultView.prototype.enterPressed = function(e) {
-    if (e && (e.which || e.key) === 13) {
-      return true;
-    } else {
-      return false;
-    }
+    return ((e != null ? e.which : void 0) || (e != null ? e.key : void 0)) === 13;
   };
 
   return DefaultView;
