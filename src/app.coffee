@@ -159,6 +159,9 @@ class DefaultView extends Backbone.View
 		# Remove all children
 		child.quit() for child in @_DefaultView.children by -1
 
+		# Also remove any remaining html
+		@$el.empty()
+
 
 	quit: =>
 
