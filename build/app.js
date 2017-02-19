@@ -112,14 +112,13 @@ DefaultView = (function(superClass) {
   };
 
   DefaultView.prototype.empty = function() {
-    var child, i, ref, results;
+    var child, i, ref;
     ref = this._DefaultView.children;
-    results = [];
     for (i = ref.length - 1; i >= 0; i += -1) {
       child = ref[i];
-      results.push(child.quit());
+      child.quit();
     }
-    return results;
+    return this.$el.empty();
   };
 
   DefaultView.prototype.quit = function() {
