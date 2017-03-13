@@ -93,6 +93,8 @@ DefaultView = (function(superClass) {
     return App.Vent.emit.apply(App.Vent, arguments);
   };
 
+  DefaultView.prototype.db = App.DB;
+
   DefaultView.prototype.append = function(view) {
     if (view._DefaultView.parent) {
       view._DefaultView.removeFromParent(view);
