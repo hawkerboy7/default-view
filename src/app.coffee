@@ -22,6 +22,13 @@ class DefaultView extends Backbone.View
 
 			).bind this
 
+
+		# --------------------------------------------------
+		# Link to database
+		# --------------------------------------------------
+		@db = App.DB
+
+
 		# --------------------------------------------------
 		# Default Eventhandling
 		# --------------------------------------------------
@@ -80,6 +87,7 @@ class DefaultView extends Backbone.View
 
 			).bind this
 
+
 		# --------------------------------------------------
 		# WebWorker Eventhandling
 		# --------------------------------------------------
@@ -119,12 +127,6 @@ class DefaultView extends Backbone.View
 
 		# Pass along event which will be send to all groups within the event
 		App.Vent.emit.apply App.Vent, arguments
-
-
-	# --------------------------------------------------
-	# Link to database
-	# --------------------------------------------------
-	db: App.DB
 
 
 	# --------------------------------------------------

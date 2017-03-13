@@ -29,6 +29,7 @@ DefaultView = (function(superClass) {
         };
       })(this)).bind(this)
     };
+    this.db = App.DB;
     if (!App.Vent) {
       msg = "DefaultView requires a variable App.Vent to be an event emitter (preferably MiniEventEmitter)";
       if (console.warn) {
@@ -92,8 +93,6 @@ DefaultView = (function(superClass) {
   DefaultView.prototype.emit = function() {
     return App.Vent.emit.apply(App.Vent, arguments);
   };
-
-  DefaultView.prototype.db = App.DB;
 
   DefaultView.prototype.append = function(view) {
     if (view._DefaultView.parent) {
