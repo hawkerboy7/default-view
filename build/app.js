@@ -138,7 +138,16 @@ DefaultView = (function(superClass) {
   };
 
   DefaultView.prototype.block = function(e) {
-    e.preventDefault();
+    this.preventDefault(e);
+    this.stopPropagation(e);
+    return false;
+  };
+
+  DefaultView.prototype.preventDefault = function(e) {
+    return e.preventDefault();
+  };
+
+  DefaultView.prototype.stopPropagation = function(e) {
     return e.stopPropagation();
   };
 
