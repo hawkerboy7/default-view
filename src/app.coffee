@@ -201,11 +201,18 @@ class DefaultView extends Backbone.View
 	block : (e) ->
 
 		# Prevent the default event
-		e.preventDefault()
+		@preventDefault e
 
 		# Prevent the event from propagating (bubling up/notifying parent views)
-		e.stopPropagation()
+		@stopPropagation e
 
+		# Return false
+		false
+
+
+	preventDefault : (e) -> e.preventDefault()
+
+	stopPropagation : (e) -> e.stopPropagation()
 
 	hide: => @$el.removeClass "show-me"
 
