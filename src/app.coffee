@@ -7,9 +7,18 @@ class DefaultView extends Backbone.View
 
 		# Create an object to store events
 		@_DefaultView =
-			parent   : null
+
+			# Keep track if at least one event has been set for this view
+			set      : false
+
+			# Store which socket events this view has added to socket.io
 			socket   : []
+
+			# Keep references to parent and children
+			parent   : null
 			children : []
+
+			# Remove the reference to this view from the parent
 			removeFromParent: ((view) =>
 
 				return console.log "View to remove is not provided" if not view
@@ -88,22 +97,6 @@ class DefaultView extends Backbone.View
 			).bind this
 
 
-		# --------------------------------------------------
-		# WebWorker Eventhandling
-		# --------------------------------------------------
-		if App.Worker
-
-			@worker = {}
-
-			# Pass along on event + provide the view's id to create a unique group for each view
-			@worker.on = ((event, func) -> App.Worker.on event, @cid, func).bind this
-
-			# Pass along off event + provide the view's id so only event's bound to this unique view are removed
-			@worker.off = ((event, func) -> App.Worker.off event, @cid, func).bind this
-
-			# Pass along event which will be send to all groups within the event
-			@worker.emit = (-> App.Worker.emit.apply App.Worker, arguments).bind this
-
 		# Run Backbone's constructor
 		super
 
@@ -115,6 +108,9 @@ class DefaultView extends Backbone.View
 
 		# Pass along on event + provide the view's id to create a unique group for each view
 		App.Vent.on event, @cid, func
+
+		# Store the fact that at least one event has been set on this view
+		@_DefaultView.set = true
 
 
 	off: (event, func) ->
@@ -164,7 +160,7 @@ class DefaultView extends Backbone.View
 
 	empty: =>
 
-		# Remove all children
+		# Remove all children in reverse order so the index remains correct because the children also remove themselves from the children array
 		child.quit() for child in @_DefaultView.children by -1
 
 		# Also remove any remaining html
@@ -176,14 +172,11 @@ class DefaultView extends Backbone.View
 		# Remove all children
 		@empty()
 
-		# Remove all MiniEventEmitter event listeners
-		@off()
+		# Remove all MiniEventEmitter event listeners if at least one has been set
+		@off null if @_DefaultView.set
 
 		# Remove all socket listeners
 		@socket?.off()
-
-		# Remove all worker listeners
-		@worker?.off()
 
 		# Get this view's index within the view's parent
 		index = (children = @_DefaultView.parent._DefaultView.children).indexOf this

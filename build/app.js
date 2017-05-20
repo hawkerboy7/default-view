@@ -13,8 +13,9 @@ DefaultView = (function(superClass) {
     this.empty = bind(this.empty, this);
     var msg;
     this._DefaultView = {
-      parent: null,
+      set: false,
       socket: [],
+      parent: null,
       children: [],
       removeFromParent: ((function(_this) {
         return function(view) {
@@ -67,23 +68,12 @@ DefaultView = (function(superClass) {
         return App.Socket.once(event, func);
       }).bind(this);
     }
-    if (App.Worker) {
-      this.worker = {};
-      this.worker.on = (function(event, func) {
-        return App.Worker.on(event, this.cid, func);
-      }).bind(this);
-      this.worker.off = (function(event, func) {
-        return App.Worker.off(event, this.cid, func);
-      }).bind(this);
-      this.worker.emit = (function() {
-        return App.Worker.emit.apply(App.Worker, arguments);
-      }).bind(this);
-    }
     DefaultView.__super__.constructor.apply(this, arguments);
   }
 
   DefaultView.prototype.on = function(event, func) {
-    return App.Vent.on(event, this.cid, func);
+    App.Vent.on(event, this.cid, func);
+    return this._DefaultView.set = true;
   };
 
   DefaultView.prototype.off = function(event, func) {
@@ -123,14 +113,13 @@ DefaultView = (function(superClass) {
   };
 
   DefaultView.prototype.quit = function() {
-    var children, index, ref, ref1;
+    var children, index, ref;
     this.empty();
-    this.off();
+    if (this._DefaultView.set) {
+      this.off(null);
+    }
     if ((ref = this.socket) != null) {
       ref.off();
-    }
-    if ((ref1 = this.worker) != null) {
-      ref1.off();
     }
     index = (children = this._DefaultView.parent._DefaultView.children).indexOf(this);
     children.splice(index, 1);
