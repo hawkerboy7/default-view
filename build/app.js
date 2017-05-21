@@ -30,9 +30,47 @@ DefaultView = (function(superClass) {
         };
       })(this)).bind(this)
     };
-    this.db = App.DB;
+    if (App.DB) {
+      this.db = {};
+      this.db.on = (function(event, func) {
+        return App.DB.on(event, this.cid, func);
+      }).bind(this);
+      this.db.off = (function(event, func) {
+        return App.DB.off(event, this.cid, func);
+      }).bind(this);
+      this.db.emit = (function() {
+        return App.DB.emit.apply(App.DB, arguments);
+      }).bind(this);
+      this.db.trigger = (function() {
+        return App.DB.trigger.apply(App.DB, arguments);
+      }).bind(this);
+      this.db.find = (function() {
+        return App.DB.find.apply(App.DB, arguments);
+      }).bind(this);
+      this.db.insert = (function() {
+        return App.DB.insert.apply(App.DB, arguments);
+      }).bind(this);
+      this.db.update = (function() {
+        return App.DB.update.apply(App.DB, arguments);
+      }).bind(this);
+      this.db["delete"] = (function() {
+        return App.DB["delete"].apply(App.DB, arguments);
+      }).bind(this);
+      this.db.delta = (function() {
+        return App.DB.delta.apply(App.DB, arguments);
+      }).bind(this);
+      this.db.start = (function() {
+        return App.DB.start.apply(App.DB, arguments);
+      }).bind(this);
+      this.db.data = App.DB.data;
+      this.db.schema = App.DB.schema;
+      this.db.events = App.DB.events;
+      this.db.groups = App.DB.groups;
+      this.db.options = App.DB.options;
+      this.db.settings = App.DB.settings;
+    }
     if (!App.Vent) {
-      msg = "DefaultView requires a variable App.Vent to be an event emitter (preferably MiniEventEmitter)";
+      msg = "DefaultView requires App.Vent to be the event emitter: MiniEventEmitter (https://github.com/hawkerboy7/mini-event-emitter)";
       if (console.warn) {
         return console.warn(msg);
       }
@@ -72,8 +110,7 @@ DefaultView = (function(superClass) {
   }
 
   DefaultView.prototype.on = function(event, func) {
-    App.Vent.on(event, this.cid, func);
-    return this._DefaultView.set = true;
+    return App.Vent.on(event, this.cid, func);
   };
 
   DefaultView.prototype.off = function(event, func) {
@@ -115,8 +152,11 @@ DefaultView = (function(superClass) {
   DefaultView.prototype.quit = function() {
     var children, index, ref;
     this.empty();
-    if (this._DefaultView.set) {
+    if (App.Vent.groups[this.cid]) {
       this.off(null);
+    }
+    if (this.db.groups[this.cid]) {
+      this.db.off(null);
     }
     if ((ref = this.socket) != null) {
       ref.off();
