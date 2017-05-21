@@ -33,9 +33,35 @@ class DefaultView extends Backbone.View
 
 
 		# --------------------------------------------------
-		# Link to database
+		# Client-db handling
 		# --------------------------------------------------
-		@db = App.DB
+		if App.DB
+
+			@db = {}
+
+			# Pass along on events but add the devaul view id as group
+			@db.on      = ((event, func) -> App.DB.on event, @cid, func).bind this
+			@db.off     = ((event, func) -> App.DB.off event, @cid, func).bind this
+
+			# Pass the complete call along
+			@db.emit    = (-> App.DB.emit.apply App.DB, arguments).bind this
+			@db.trigger = (-> App.DB.trigger.apply App.DB, arguments).bind this
+			@db.find   = (-> App.DB.find.apply App.DB, arguments).bind this
+			@db.insert = (-> App.DB.insert.apply App.DB, arguments).bind this
+			@db.update = (-> App.DB.update.apply App.DB, arguments).bind this
+			@db.delete = (-> App.DB.delete.apply App.DB, arguments).bind this
+
+			# DB helpers
+			@db.delta = (-> App.DB.delta.apply App.DB, arguments).bind this
+			@db.start = (-> App.DB.start.apply App.DB, arguments).bind this
+
+			# Referneces
+			@db.data     = App.DB.data
+			@db.schema   = App.DB.schema
+			@db.events   = App.DB.events
+			@db.groups   = App.DB.groups
+			@db.options  = App.DB.options
+			@db.settings = App.DB.settings
 
 
 		# --------------------------------------------------
@@ -44,7 +70,7 @@ class DefaultView extends Backbone.View
 		if not App.Vent
 
 			# Notification
-			msg = "DefaultView requires a variable App.Vent to be an event emitter (preferably MiniEventEmitter)"
+			msg = "DefaultView requires App.Vent to be the event emitter: MiniEventEmitter (https://github.com/hawkerboy7/mini-event-emitter)"
 
 			# As warning if possible
 			return console.warn msg if console.warn
@@ -75,7 +101,7 @@ class DefaultView extends Backbone.View
 				# If event is provided turn it off
 				return App.Socket.off event, func if event
 
-				# Remove all event listeners of this view if no event is provided
+				# Remove all eventListeners of this view if no event is provided
 				App.Socket.off events[0], events[1] for events in @_DefaultView.socket
 
 				# Empty the array
@@ -108,9 +134,6 @@ class DefaultView extends Backbone.View
 
 		# Pass along on event + provide the view's id to create a unique group for each view
 		App.Vent.on event, @cid, func
-
-		# Store the fact that at least one event has been set on this view
-		@_DefaultView.set = true
 
 
 	off: (event, func) ->
@@ -172,8 +195,11 @@ class DefaultView extends Backbone.View
 		# Remove all children
 		@empty()
 
-		# Remove all MiniEventEmitter event listeners if at least one has been set
-		@off null if @_DefaultView.set
+		# Remove all MiniEventEmitter eventListeners of this view if they exist
+		@off null if App.Vent.groups[@cid]
+
+		# Remove all client-db eventListeners of this view if they exist
+		@db.off null if @db.groups[@cid]
 
 		# Remove all socket listeners
 		@socket?.off()
