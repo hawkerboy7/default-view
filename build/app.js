@@ -121,6 +121,10 @@ DefaultView = (function(superClass) {
     return App.Vent.emit.apply(App.Vent, arguments);
   };
 
+  DefaultView.prototype.emitIf = function() {
+    return App.Vent.emitIf.apply(App.Vent, arguments);
+  };
+
   DefaultView.prototype.append = function(view) {
     if (view._DefaultView.parent) {
       view._DefaultView.removeFromParent(view);
