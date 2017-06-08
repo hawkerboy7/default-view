@@ -148,6 +148,12 @@ class DefaultView extends Backbone.View
 		App.Vent.emit.apply App.Vent, arguments
 
 
+	emitIf: ->
+
+		# Pass along event which will be send to all groups within the event if it is being listened for
+		App.Vent.emitIf.apply App.Vent, arguments
+
+
 	# --------------------------------------------------
 	# DefaultView Backbone View logics
 	# --------------------------------------------------
